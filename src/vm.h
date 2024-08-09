@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "term_colors.h"
 
 typedef enum
@@ -41,6 +42,13 @@ typedef enum
     PUSHB8,
     JG,
     JMP,
+    LOAD_STR,
+    PRINT_STR,
+    PRINT_I32,
+    PRINT_I8,
+    STORE_STR,
+    MOD,
+    MOD32,
 } opcodes;
 
 typedef struct

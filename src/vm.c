@@ -208,7 +208,12 @@ void mod32(vm_state *vm)
     vm->sp -= 4;
     uint32_t b = get32(vm);
     vm->sp -= 4;
-    push32(vm, a % b);
+    if (a == 0 || b == 0)
+    {
+        push32(vm, 0);
+        return;
+    }
+    push32(vm, b % a);
 }
 
 void div8(vm_state *vm)
@@ -282,13 +287,13 @@ void cmp32(vm_state *vm)
     }
     if (a > b)
     {
-        push(vm, 2);
+        push(vm, 3);
 
         return;
     }
     if (a < b)
     {
-        push(vm, 3);
+        push(vm, 2);
         return;
     }
     push(vm, 0);
@@ -302,6 +307,7 @@ void cmp(vm_state *vm)
     uint8_t a = vm->stack[vm->sp];
     vm->sp -= 1;
     uint8_t b = vm->stack[vm->sp];
+    vm->sp -= 1;
     if (a == b)
     {
         push(vm, 1);
@@ -313,6 +319,23 @@ void cmp(vm_state *vm)
         return;
     }
     push(vm, 0);
+}
+
+void print8(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 1);
+    vm->sp--;
+    printf("%d", vm->stack[vm->sp]);
+}
+
+void print32(vm_state *vm)
+{
+
+    check_vm(vm);
+    check_stack(vm, 4);
+    printf("%d", get32(vm));
+    vm->sp -= 4;
 }
 
 void jmpneq(vm_state *vm)
@@ -459,6 +482,77 @@ void load32(vm_state *vm)
     uint32_t *ptr = (uint32_t *)(vm->mem + addr);
     uint32_t value = *ptr;
     push32(vm, value);
+}
+
+void load_cstr(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 4);
+    uint32_t addr = get32(vm);
+    vm->sp -= 4;
+    check_mem(vm, addr);
+    char *buffer = malloc(1000);
+    int i = 0;
+    while (true)
+    {
+        check_mem(vm, i + addr);
+        uint8_t c = vm->mem[i + addr];
+        if (c == 0)
+        {
+            break;
+        }
+        buffer[i] = c;
+        ++i;
+    }
+    push(vm, 0);
+    while (i)
+    {
+        push(vm, buffer[i - 1]);
+        --i;
+    }
+    free(buffer);
+}
+void store_cstr(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 4);
+    uint32_t addr = get32(vm);
+    vm->sp -= 5;
+    check_mem(vm, addr);
+    char *buffer = malloc(1000);
+    int i = 0;
+    while (vm->sp && vm->stack[vm->sp])
+    {
+        buffer[i++] = vm->stack[vm->sp];
+        --vm->sp;
+    }
+    int x = 0;
+    for (x = 0; x < i; ++x)
+    {
+        check_mem(vm, x + addr);
+        vm->mem[x + addr] = buffer[x];
+    }
+    vm->mem[x + addr] = 0;
+    free(buffer);
+}
+
+void print_cstr(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 4);
+    uint32_t addr = get32(vm);
+    vm->sp -= 4;
+    check_mem(vm, addr);
+    char *buffer = malloc(1000);
+    int i = 0;
+    while (vm->mem[addr + i])
+    {
+        buffer[i] = vm->mem[addr + i];
+        ++i;
+    }
+    buffer[i] = 0;
+    printf("%s", buffer);
+    free(buffer);
 }
 
 void execute(vm_state *vm, instruction_t instruction)
@@ -646,6 +740,41 @@ void execute(vm_state *vm, instruction_t instruction)
     case STORE32:
     {
         store32(vm);
+    }
+    break;
+    case STORE_STR:
+    {
+        store_cstr(vm);
+    }
+    break;
+    case LOAD_STR:
+    {
+        load_cstr(vm);
+    }
+    break;
+    case PRINT_STR:
+    {
+        print_cstr(vm);
+    }
+    break;
+    case MOD32:
+    {
+        mod32(vm);
+    }
+    break;
+    case MOD:
+    {
+        mod(vm);
+    }
+    break;
+    case PRINT_I8:
+    {
+        print8(vm);
+    }
+    break;
+    case PRINT_I32:
+    {
+        print32(vm);
     }
     break;
     }
