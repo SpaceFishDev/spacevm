@@ -21,6 +21,6 @@ popa8 (u8) -> ()
 pushA32 (u32) -> ()
 - pops u32 value into A register
 
-# POPA32 
+## POPA32 
 popA32 () -> (u32)
 - pushes value in A register to stack as u32
