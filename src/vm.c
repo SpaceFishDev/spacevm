@@ -431,6 +431,12 @@ void store32(vm_state *vm)
     check_vm(vm);
     check_stack(vm, 8);
     uint32_t addr = get32(vm);
+    vm->sp -= 4;
+    uint32_t value = get32(vm);
+    vm->sp -= 4;
+    check_mem(vm, addr);
+    uint32_t *ptr = (uint32_t *)(vm->mem + addr);
+    ptr[0] = value;
 }
 
 void load(vm_state *vm)
@@ -441,6 +447,18 @@ void load(vm_state *vm)
     vm->sp -= 4;
     check_mem(vm, addr);
     push(vm, vm->mem[addr]);
+}
+
+void load32(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 4);
+    uint32_t addr = get32(vm);
+    vm->sp -= 4;
+    check_mem(vm, addr);
+    uint32_t *ptr = (uint32_t *)(vm->mem + addr);
+    uint32_t value = *ptr;
+    push32(vm, value);
 }
 
 void execute(vm_state *vm, instruction_t instruction)
@@ -618,6 +636,16 @@ void execute(vm_state *vm, instruction_t instruction)
     case LOAD:
     {
         load(vm);
+    }
+    break;
+    case LOAD32:
+    {
+        load32(vm);
+    }
+    break;
+    case STORE32:
+    {
+        store32(vm);
     }
     break;
     }

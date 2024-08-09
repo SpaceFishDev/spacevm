@@ -29,11 +29,11 @@ instruction_t loop_instructions[] = {
 };
 
 instruction_t ins[] = {
-    INS(PUSH, 12),
+    INS(PUSH32, 40),
     INS(PUSH32, 10),
-    INS(STORE, 0),
+    INS(STORE32, 0),
     INS(PUSH32, 10),
-    INS(LOAD, 0),
+    INS(LOAD32, 0),
 };
 
 int main(void)
