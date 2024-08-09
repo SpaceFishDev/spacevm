@@ -16,7 +16,7 @@ instruction_t loop_instructions[] = {
     INS(SWAP32, 0),  // [50,0]
     INS(DUP32, 0),   // [50,0,0]
     INS(POPB32, 0),  // [50,0]
-    INS(CMP32, 0),   // [3]
+    INS(CMP32, 0),   // [uint8 3]
     INS(MK4, 0),     // [3]
     INS(PUSHB32, 0), // [3,0]
     INS(PUSH32, 1),  // [3,0,1]
