@@ -27,11 +27,20 @@ instruction_t loop_instructions[] = {
     INS(PUSH32, 3),
     INS(JMP, 0),
 };
+
+instruction_t ins[] = {
+    INS(PUSH, 12),
+    INS(PUSH32, 10),
+    INS(STORE, 0),
+    INS(PUSH32, 10),
+    INS(LOAD, 0),
+};
+
 int main(void)
 {
     printf("Hello, World!\n");
     vm_state *vm = create_vm(50000, 50000);
-    exec_all(vm, loop_instructions, (sizeof(loop_instructions) / sizeof(instruction_t)));
+    exec_all(vm, ins, (sizeof(ins) / sizeof(instruction_t)));
     printf("\n");
     vm_view(vm);
     cleanup_vm(vm);

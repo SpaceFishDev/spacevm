@@ -391,9 +391,9 @@ void expand_mem(vm_state *vm, uint32_t new_size)
 vm_state *create_vm(int stack_size, int mem_size)
 {
     vm_state *vm = calloc(1, sizeof(vm_state));
-    vm->mem = malloc(mem_size);
+    vm->mem = calloc(1, mem_size);
     vm->mem_size = mem_size;
-    vm->stack = malloc(stack_size);
+    vm->stack = calloc(1, stack_size);
     vm->sp = 0;
     vm->stack_top = stack_size;
     return vm;
@@ -404,6 +404,43 @@ void cleanup_vm(vm_state *vm)
     free(vm->stack);
     free(vm->mem);
     free(vm);
+}
+
+void check_mem(vm_state *vm, uint32_t ptr)
+{
+    if (ptr > vm->mem_size)
+    {
+        panic("Memory overflow");
+    }
+}
+
+void store(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 5);
+    uint32_t addr = get32(vm);
+    vm->sp -= 4;
+    uint8_t data = vm->stack[vm->sp - 1];
+    vm->sp -= 1;
+    check_mem(vm, addr);
+    vm->mem[addr] = data;
+}
+
+void store32(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 8);
+    uint32_t addr = get32(vm);
+}
+
+void load(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 4);
+    uint32_t addr = get32(vm);
+    vm->sp -= 4;
+    check_mem(vm, addr);
+    push(vm, vm->mem[addr]);
 }
 
 void execute(vm_state *vm, instruction_t instruction)
@@ -571,6 +608,16 @@ void execute(vm_state *vm, instruction_t instruction)
     {
         check_stack(vm, 4);
         vm->sp -= 4;
+    }
+    break;
+    case STORE:
+    {
+        store(vm);
+    }
+    break;
+    case LOAD:
+    {
+        load(vm);
     }
     break;
     }
