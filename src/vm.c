@@ -158,11 +158,13 @@ void dup32(vm_state *vm)
 void swap32(vm_state *vm)
 {
     check_vm(vm);
-    check_stack(vm, 2);
-    int x = vm->stack[vm->sp - 1];
-    int y = vm->stack[vm->sp - 2];
-    vm->stack[vm->sp - 1] = y;
-    vm->stack[vm->sp - 2] = x;
+    check_stack(vm, 8);
+    uint32_t a = get32(vm);
+    vm->sp -= 4;
+    uint32_t b = get32(vm);
+    vm->sp -= 4;
+    push32(vm, a);
+    push32(vm, b);
 }
 
 void mul(vm_state *vm)
@@ -233,9 +235,38 @@ void div32(vm_state *vm)
 void pushA32(vm_state *vm)
 {
     check_vm(vm);
-    push32(vm, (uint8_t)vm->A);
+    push32(vm, (uint32_t)vm->A);
 }
 
+void popB32(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 4);
+    uint32_t a = get32(vm);
+    vm->sp -= 4;
+    vm->B = a;
+}
+
+void popB8(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 1);
+    vm->sp -= 1;
+    uint8_t a = vm->stack[vm->sp];
+    vm->B = (uint32_t)a;
+}
+
+void pushB8(vm_state *vm)
+{
+    check_vm(vm);
+    push(vm, (uint8_t)vm->B);
+}
+
+void pushB32(vm_state *vm)
+{
+    check_vm(vm);
+    push32(vm, (uint32_t)vm->B);
+}
 void cmp32(vm_state *vm)
 {
     check_vm(vm);
@@ -252,6 +283,7 @@ void cmp32(vm_state *vm)
     if (a > b)
     {
         push(vm, 2);
+
         return;
     }
     if (a < b)
@@ -286,44 +318,54 @@ void cmp(vm_state *vm)
 void jmpneq(vm_state *vm)
 {
     check_vm(vm);
-    check_stack(vm, 2);
-    vm->sp -= 1;
-    uint8_t cnd = vm->stack[vm->sp];
-    vm->sp -= 1;
-    uint8_t pc = vm->stack[vm->sp];
-    vm->pc = (cnd != 1) ? pc : vm->pc;
+    check_stack(vm, 8);
+    uint32_t pc = get32(vm);
+    vm->sp -= 4;
+    uint32_t cnd = get32(vm);
+    vm->sp -= 4;
+    vm->pc = (cnd != 1) ? pc - 1 : vm->pc;
 }
+
+void jmp(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 4);
+    uint32_t pc = get32(vm);
+    vm->sp -= 4;
+    vm->pc = pc - 1;
+}
+
 void jmpeq(vm_state *vm)
 {
     check_vm(vm);
-    check_stack(vm, 2);
-    vm->sp -= 1;
-    uint8_t cnd = vm->stack[vm->sp];
-    vm->sp -= 1;
-    uint8_t pc = vm->stack[vm->sp];
-    vm->pc = (cnd == 1) ? pc : vm->pc;
+    check_stack(vm, 8);
+    uint32_t pc = get32(vm);
+    vm->sp -= 4;
+    uint32_t cnd = get32(vm);
+    vm->sp -= 4;
+    vm->pc = (cnd == 1) ? pc - 1 : vm->pc;
 }
 
 void jmpg(vm_state *vm)
 {
     check_vm(vm);
-    check_stack(vm, 2);
-    vm->sp -= 1;
-    uint8_t cnd = vm->stack[vm->sp];
-    vm->sp -= 1;
-    uint8_t pc = vm->stack[vm->sp];
-    vm->pc = (cnd == 2) ? pc : vm->pc;
+    check_stack(vm, 8);
+    uint32_t pc = get32(vm);
+    vm->sp -= 4;
+    uint32_t cnd = get32(vm);
+    vm->sp -= 4;
+    vm->pc = (cnd == 2) ? pc - 1 : vm->pc;
 }
 
 void jmpl(vm_state *vm)
 {
     check_vm(vm);
-    check_stack(vm, 2);
-    vm->sp -= 1;
-    uint8_t cnd = vm->stack[vm->sp];
-    vm->sp -= 1;
-    uint8_t pc = vm->stack[vm->sp];
-    vm->pc = (cnd == 3) ? pc : vm->pc;
+    check_stack(vm, 8);
+    uint32_t pc = get32(vm);
+    vm->sp -= 4;
+    uint32_t cnd = get32(vm);
+    vm->sp -= 4;
+    vm->pc = (cnd == 3) ? pc - 1 : vm->pc;
 }
 
 void vm_view(vm_state *vm)
@@ -391,6 +433,16 @@ void execute(vm_state *vm, instruction_t instruction)
     case SUB8:
     {
         sub(vm);
+    }
+    break;
+    case ADD32:
+    {
+        add32(vm);
+    }
+    break;
+    case ADD8:
+    {
+        add(vm);
     }
     break;
     case SUB32:
@@ -463,5 +515,73 @@ void execute(vm_state *vm, instruction_t instruction)
         jmpneq(vm);
     }
     break;
+    case JMP:
+    {
+        jmp(vm);
+    }
+    break;
+    case PUSHA32:
+    {
+        pushA32(vm);
+    }
+    break;
+    case PUSHA8:
+    {
+        pushA8(vm);
+    }
+    break;
+    case DUP32:
+    {
+        dup32(vm);
+    }
+    break;
+    case DUP8:
+    {
+        dup(vm);
+    }
+    break;
+    case POPB8:
+    {
+        popB8(vm);
+    }
+    break;
+    case POPB32:
+    {
+        popB32(vm);
+    }
+    break;
+    case PUSHB32:
+    {
+        pushB32(vm);
+    }
+    break;
+    case PUSHB8:
+    {
+        pushB8(vm);
+    }
+    break;
+    case MK4:
+    {
+        push(vm, 0);
+        push(vm, 0);
+        push(vm, 0);
+    }
+    break;
+    case MK1:
+    {
+        check_stack(vm, 4);
+        vm->sp -= 4;
+    }
+    break;
+    }
+}
+
+void exec_all(vm_state *vm, instruction_t *instructions, uint32_t len)
+{
+    while (vm->pc < len)
+    {
+        execute(vm, instructions[vm->pc]);
+        // vm_view(vm);
+        ++vm->pc;
     }
 }

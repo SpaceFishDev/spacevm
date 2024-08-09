@@ -9,6 +9,8 @@ typedef enum
     PUSH32,
     POPA8,
     POPA32,
+    PUSHA32,
+    PUSHA8,
     SUB8,
     SUB32,
     ADD8,
@@ -22,18 +24,25 @@ typedef enum
     DUP8,
     DUP32,
     PUTC,
+    POPB32,
+    POPB8,
     CMP,
     CMP32,
     JE,
+    MK4,
+    MK1,
     JL,
     JNE,
+    PUSHB32,
+    PUSHB8,
     JG,
+    JMP,
 } opcodes;
 
 typedef struct
 {
     // registers
-    int32_t A, B, C, D;
+    uint32_t A, B, C, D, E, F;
     // memory
     uint8_t *mem;
     uint32_t mem_size;
@@ -56,6 +65,7 @@ void check_vm(vm_state *vm);
 void stack_underflow();
 void check_stack(vm_state *vm, uint32_t num);
 void push(vm_state *vm, uint8_t value);
+void jmp(vm_state *vm);
 void push32(vm_state *vm, uint32_t value);
 uint32_t get32(vm_state *vm);
 void add(vm_state *vm);
@@ -64,6 +74,10 @@ void putch(vm_state *vm);
 void popA8(vm_state *vm);
 void popA32(vm_state *vm);
 void pushA8(vm_state *vm);
+void pushB8(vm_state *vm);
+void pushB32(vm_state *vm);
+void popB32(vm_state *vm);
+void popB8(vm_state *vm);
 void pushA32(vm_state *vm);
 void dup(vm_state *vm);
 void dup32(vm_state *vm);
@@ -88,3 +102,4 @@ void cleanup_vm(vm_state *vm);
 void expand_mem(vm_state *vm, uint32_t size);
 vm_state *create_vm(int stack_size, int mem_size);
 void execute(vm_state *vm, instruction_t instruction);
+void exec_all(vm_state *vm, instruction_t *instructions, uint32_t len);
