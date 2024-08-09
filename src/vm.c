@@ -283,6 +283,16 @@ void cmp(vm_state *vm)
     push(vm, 0);
 }
 
+void jmpneq(vm_state *vm)
+{
+    check_vm(vm);
+    check_stack(vm, 2);
+    vm->sp -= 1;
+    uint8_t cnd = vm->stack[vm->sp];
+    vm->sp -= 1;
+    uint8_t pc = vm->stack[vm->sp];
+    vm->pc = (cnd != 1) ? pc : vm->pc;
+}
 void jmpeq(vm_state *vm)
 {
     check_vm(vm);
@@ -426,6 +436,31 @@ void execute(vm_state *vm, instruction_t instruction)
     case SWAP32:
     {
         swap32(vm);
+    }
+    break;
+    case PUTC:
+    {
+        putch(vm);
+    }
+    break;
+    case JE:
+    {
+        jmpeq(vm);
+    }
+    break;
+    case JL:
+    {
+        jmpl(vm);
+    }
+    break;
+    case JG:
+    {
+        jmpg(vm);
+    }
+    break;
+    case JNE:
+    {
+        jmpneq(vm);
     }
     break;
     }

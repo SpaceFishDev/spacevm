@@ -24,6 +24,10 @@ typedef enum
     PUTC,
     CMP,
     CMP32,
+    JE,
+    JL,
+    JNE,
+    JG,
 } opcodes;
 
 typedef struct
@@ -47,6 +51,7 @@ typedef struct
 } instruction_t;
 
 void panic(char *str);
+void jmpneq(vm_state *vm);
 void check_vm(vm_state *vm);
 void stack_underflow();
 void check_stack(vm_state *vm, uint32_t num);
