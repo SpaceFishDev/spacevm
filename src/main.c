@@ -2,7 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "term_colors.h"
-#include "vm.h"
+#include "parser.h"
 
 #define INS(type, value) \
     (instruction_t) { (uint32_t) type, (uint32_t)value }
@@ -36,7 +36,7 @@ instruction_t memory[] = {
     INS(LOAD32, 0),
 };
 instruction_t fizzbuzz[] = {
-    INS(PUSH32, 100),
+    INS(PUSH32, 1000),
     INS(POPA32, 0),
     INS(PUSH32, 0),
     // start
@@ -90,17 +90,35 @@ instruction_t fizzbuzz[] = {
     INS(PUSH32, 3),
     INS(JL, 0),
     // end loop
+    INS(POPA32, 0), // cleanup stack
 };
 
 instruction_t ins[] = {};
 
 int main(void)
 {
-    vm_state *vm = create_vm(50000, 50000);
-    printf("OUTPUT: \n");
-    exec_all(vm, ins, (sizeof(ins) / sizeof(instruction_t)));
-    printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    vm_view(vm);
-    cleanup_vm(vm);
+    // vm_state *vm = create_vm(50000, 50000);
+    // printf("OUTPUT: \n");
+    // exec_all(vm, fizzbuzz, (sizeof(fizzbuzz) / sizeof(instruction_t)));
+    // printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+    // vm_view(vm);
+    // cleanup_vm(vm);
+
+    char *file = readfile("./main.sas");
+    printf("%s\n", file);
+
+    parser_state *parser = create_parser(file);
+    command_t *commands = parse_all(parser);
+    int i = 0;
+    while (true)
+    {
+        display_command(commands[i]);
+        if (commands[i].type == CNONE)
+        {
+            break;
+        }
+        ++i;
+    }
+    free(file);
     return 0;
 }

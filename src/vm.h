@@ -1,3 +1,4 @@
+#pragma once
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -115,3 +116,4 @@ void expand_mem(vm_state *vm, uint32_t size);
 vm_state *create_vm(int stack_size, int mem_size);
 void execute(vm_state *vm, instruction_t instruction);
 void exec_all(vm_state *vm, instruction_t *instructions, uint32_t len);
+void panic(char *str);
