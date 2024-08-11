@@ -1,11 +1,9 @@
+#include <memdebug.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include "term_colors.h"
 #include "parser.h"
-
-#define INS(type, value) \
-    (instruction_t) { (uint32_t) type, (uint32_t)value }
 
 instruction_t loop_instructions[] = {
     INS(PUSH32, 0xFFFE), // [50]
@@ -105,20 +103,15 @@ int main(void)
     // cleanup_vm(vm);
 
     char *file = readfile("./main.sas");
-    printf("%s\n", file);
 
     parser_state *parser = create_parser(file);
     command_t *commands = parse_all(parser);
-    int i = 0;
-    while (true)
-    {
-        display_command(commands[i]);
-        if (commands[i].type == CNONE)
-        {
-            break;
-        }
-        ++i;
-    }
+    int len = 0;
+    instruction_t *compiled = compile(commands[0], &len);
+    vm_state *vm = create_vm(100, 100);
+    exec_all(vm, compiled, len);
+    vm_view(vm);
+
     free(file);
     return 0;
 }

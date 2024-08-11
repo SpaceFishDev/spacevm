@@ -279,13 +279,13 @@ command_t parse(parser_state *parser)
         {
             ++parser->pos;
             free(value);
-            return CMD(CSWAP8, t);
+            return CMD(CPUSHA8, t);
         }
         if (strcmp(value, "pusha32") == 0)
         {
             ++parser->pos;
             free(value);
-            return CMD(CSWAP32, t);
+            return CMD(CPUSHA32, t);
         }
 
         free(value);
@@ -321,4 +321,143 @@ command_t *parse_all(parser_state *parser)
     }
     // should never reach here but compiler warnings
     return commands;
+}
+
+instruction_t *compile(command_t command, int *len)
+{
+    switch (command.type)
+    {
+    case CPUSH8:
+    {
+        uint8_t value = 0;
+        switch (command.token.type)
+        {
+        case CHARACTER:
+        {
+            value = command.token.src[0];
+        }
+        break;
+        case NUMBER:
+        {
+            uint32_t val = atoi(command.token.src);
+            value = (uint8_t)val;
+        }
+        break;
+        default:
+        {
+            // shouldnt be possible
+            value = 0;
+        }
+        }
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(PUSH, value);
+        *len = 1;
+        return ins;
+    }
+    case CPUSH32:
+    {
+        uint32_t value = 0;
+        switch (command.token.type)
+        {
+        case NUMBER:
+        {
+            value = atoi(command.token.src);
+        }
+        break;
+        default:
+        {
+            value = 0;
+        }
+        break;
+        }
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(PUSH32, value);
+        *len = 1;
+        return ins;
+    }
+    case CPUSHSTR:
+    {
+        char *str = command.token.src;
+        instruction_t *instrucions = malloc(sizeof(instruction_t) * (strlen(str) + 1));
+        int length = strlen(str);
+        int x = 0;
+        for (int i = length; i > 0; --i)
+        {
+            instrucions[x] = INS(PUSH, str[i]);
+            ++x;
+        }
+        *len = (length);
+        return instrucions;
+    }
+    case CPUSHA32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(PUSHA32, 0);
+        *len = 1;
+        return ins;
+    }
+    case CPUSHA8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(PUSHA8, 0);
+        *len = 1;
+        return ins;
+    }
+    case LABEL:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(INS_LABEL, 0);
+        *len = 1;
+        return ins;
+    }
+    case CPOPB32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(POPB32, 0);
+        *len = 1;
+        return ins;
+    }
+    case CPOPB8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(POPB8, 0);
+        *len = 1;
+        return ins;
+    }
+    case CMOD32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(MOD32, 0);
+        *len += 1;
+        return ins;
+    }
+    case CMOD8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(MOD, 0);
+        *len += 1;
+        return ins;
+    }
+    case CCMP32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(CMP32, 0);
+        *len += 1;
+        return ins;
+    }
+    case CCMP8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(CMP, 0);
+        *len += 1;
+        return ins;
+    }
+    default:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(NOP, 0);
+        *len = 1;
+        return ins;
+    }
+    }
 }

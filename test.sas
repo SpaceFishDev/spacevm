@@ -1,3 +1,5 @@
+
+main:
 push32 1000
 popa32
 push32 0
@@ -31,7 +33,7 @@ end1:
     pushb8
     dup8
     push 0
-    cmp
+    cmp8
     mk4
     jne end2
     dup32 

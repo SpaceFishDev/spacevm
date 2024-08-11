@@ -1,10 +1,10 @@
 src = $(wildcard src/*.c)
-cflags = -O3 -Wextra -Werror -Wall
+cflags = -Isrc/memdebug -O3 -Wextra -Werror -Wall
 
 all: build run
 
 build: 
-	gcc $(src) -o main $(cflags)
+	gcc $(src) src/memdebug/memdebug.c -o main $(cflags)
 
 run:
 	./main

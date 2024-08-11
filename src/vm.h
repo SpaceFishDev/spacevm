@@ -50,6 +50,8 @@ typedef enum
     STORE_STR,
     MOD,
     MOD32,
+    NOP,
+    INS_LABEL, // not used, just used if its compiled from assembly
 } opcodes;
 
 typedef struct

@@ -31,6 +31,9 @@ token_t lex(lexer_state *lexer);
 void display_token(token_t t);
 token_t *lex_all(lexer_state *lexer);
 
+#define INS(type, value) \
+    (instruction_t) { (uint32_t) type, (uint32_t)value }
+
 typedef struct
 {
     int pos;
@@ -83,3 +86,4 @@ void check_parser(parser_state *parser);
 command_t parse(parser_state *parser);
 void display_command(command_t cmd);
 command_t *parse_all(parser_state *parser);
+instruction_t *compile(command_t command, int *len);
