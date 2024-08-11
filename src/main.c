@@ -101,17 +101,20 @@ int main(void)
     // printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~\n");
     // vm_view(vm);
     // cleanup_vm(vm);
+    init_memdebug();
 
     char *file = readfile("./main.sas");
-
     parser_state *parser = create_parser(file);
     command_t *commands = parse_all(parser);
+    free(parser->tokens);
     int len = 0;
     instruction_t *compiled = compile(commands[0], &len);
     vm_state *vm = create_vm(100, 100);
     exec_all(vm, compiled, len);
     vm_view(vm);
-
     free(file);
+
+    memdebug_view();
+    cleanup_memdebug();
     return 0;
 }

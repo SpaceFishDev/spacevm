@@ -34,14 +34,14 @@ void cleanup_memdebug()
 
 void memdebug_free(void *ptr)
 {
-    free(ptr);
     for (int i = 0; i < alloc_idx; ++i)
     {
-        if (allocations[i].ptr = ptr)
+        if (allocations[i].ptr == ptr)
         {
             allocations[i].free = true;
         }
     }
+    free(ptr);
 }
 
 void *memdebug_malloc(int sz, char *file, int line)
@@ -63,7 +63,22 @@ void memdebug_view()
     {
         if (allocations[i].free == false)
         {
-            printf("NON-FREE MALLOC: [FILE: %s LINE: %d]\n", allocations[i].file, allocations[i].line);
+            printf("NON-FREE malloc: [FILE: %s LINE: %d]\n", allocations[i].file, allocations[i].line);
         }
     }
+}
+
+void *memdebug_realloc(void *ptr, int sz, char *file, int line)
+{
+    void *new = realloc(ptr, sz);
+    for (int i = 0; i < alloc_idx; ++i)
+    {
+        if (allocations[i].ptr == ptr)
+        {
+            allocations[i].ptr = new;
+            allocations[i].file = file;
+            allocations[i].line = line;
+        }
+    }
+    return new;
 }

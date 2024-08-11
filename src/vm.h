@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <memdebug.h>
 #include "term_colors.h"
 
 typedef enum
