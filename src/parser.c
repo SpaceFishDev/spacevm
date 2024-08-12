@@ -173,6 +173,18 @@ command_t parse(parser_state *parser)
             free(value);
             return CMD(CDUP32, t);
         }
+        if (strcmp(value, "load8") == 0)
+        {
+            ++parser->pos;
+            free(value);
+            return CMD(CLOAD8, t);
+        }
+        if (strcmp(value, "load32") == 0)
+        {
+            ++parser->pos;
+            free(value);
+            return CMD(CLOAD32, t);
+        }
         if (strcmp(value, "mod8") == 0)
         {
             ++parser->pos;
@@ -184,6 +196,18 @@ command_t parse(parser_state *parser)
             ++parser->pos;
             free(value);
             return CMD(CMOD32, t);
+        }
+        if (strcmp(value, "drop8") == 0)
+        {
+            ++parser->pos;
+            free(value);
+            return CMD(CDROP8, t);
+        }
+        if (strcmp(value, "drop32") == 0)
+        {
+            ++parser->pos;
+            free(value);
+            return CMD(CDROP32, t);
         }
         if (strcmp(value, "cmp32") == 0)
         {
@@ -226,6 +250,30 @@ command_t parse(parser_state *parser)
             free(value);
             ++parser->pos;
             return CMD(CJL, token);
+        }
+        if (strcmp(value, "jg") == 0)
+        {
+            if (!expect(parser, KEYWORD))
+            {
+                PARSE_ERROR(t, "Expected keyword");
+            }
+            ++parser->pos;
+            token_t token = parser->tokens[parser->pos];
+            free(value);
+            ++parser->pos;
+            return CMD(CJG, token);
+        }
+        if (strcmp(value, "jmp") == 0)
+        {
+            if (!expect(parser, KEYWORD))
+            {
+                PARSE_ERROR(t, "Expected keyword");
+            }
+            ++parser->pos;
+            token_t token = parser->tokens[parser->pos];
+            free(value);
+            ++parser->pos;
+            return CMD(CJMP, token);
         }
         if (strcmp(value, "putc") == 0)
         {
@@ -345,7 +393,6 @@ instruction_t *compile(command_t command, int *len)
         break;
         default:
         {
-            // shouldnt be possible
             value = 0;
         }
         }
@@ -379,11 +426,11 @@ instruction_t *compile(command_t command, int *len)
     {
         char *str = command.token.src;
         instruction_t *instrucions = malloc(sizeof(instruction_t) * (strlen(str) + 1));
-        int length = strlen(str);
+        int length = strlen(str) + 1;
         int x = 0;
         for (int i = length; i > 0; --i)
         {
-            instrucions[x] = INS(PUSH, str[i]);
+            instrucions[x] = INS(PUSH, str[i - 1]);
             ++x;
         }
         *len = (length);
@@ -403,7 +450,7 @@ instruction_t *compile(command_t command, int *len)
         *len = 1;
         return ins;
     }
-    case LABEL:
+    case CLABEL:
     {
         instruction_t *ins = malloc(sizeof(instruction_t));
         *ins = INS(INS_LABEL, 0);
@@ -452,6 +499,169 @@ instruction_t *compile(command_t command, int *len)
         *len += 1;
         return ins;
     }
+    case CSTORESTR:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(STORE_STR, 0);
+        *len += 1;
+        return ins;
+    }
+    case CPRINTSTR:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(PRINT_STR, 0);
+        *len += 1;
+        return ins;
+    }
+    case CPUSHB8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(PUSHB8, 0);
+        *len += 1;
+        return ins;
+    }
+    break;
+    case CPUSHB32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(PUSHB32, 0);
+        *len += 1;
+        return ins;
+    }
+    case CADD32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(ADD32, 0);
+        *len += 1;
+        return ins;
+    }
+    case CADD8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(ADD8, 0);
+        *len += 1;
+        return ins;
+    }
+
+    case CPRINTI32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(PRINT_I32, 0);
+        *len += 1;
+        return ins;
+    }
+    case CJNE:
+    {
+
+        instruction_t *ins = malloc(sizeof(instruction_t) * 2);
+        ins[0] = INS(PUSH32, 0);
+        ins[1] = INS(JNE, 0);
+        *len = 2;
+        return ins;
+    }
+    break;
+    case CPOPA32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(POPA32, 0);
+        *len = 1;
+        return ins;
+    }
+    case CPOPA8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(POPA8, 0);
+        *len = 1;
+        return ins;
+    }
+    case CDUP32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(DUP32, 0);
+        *len = 1;
+        return ins;
+    }
+    case CDUP8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(DUP8, 0);
+        *len = 1;
+        return ins;
+    }
+    case CMK4:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(MK4, 0);
+        *len = 1;
+        return ins;
+    }
+    case CPUTC:
+    {
+
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(PUTC, 0);
+        *len = 1;
+        return ins;
+    }
+    case CJL:
+    {
+
+        instruction_t *ins = malloc(sizeof(instruction_t) * 2);
+        ins[0] = INS(PUSH32, 0);
+        ins[1] = INS(JNE, 0);
+        *len = 2;
+        return ins;
+    }
+    case CSWAP32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(SWAP32, 0);
+        *len = 1;
+        return ins;
+    }
+    case CSWAP8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(SWAP8, 0);
+        *len = 1;
+        return ins;
+    }
+    case CDROP32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(DROP32, 0);
+        *len = 1;
+        return ins;
+    }
+    case CDROP8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(DROP, 0);
+        *len = 1;
+        return ins;
+    }
+    case CLOAD32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(LOAD32, 0);
+        *len = 1;
+        return ins;
+    }
+    case CLOAD8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(LOAD, 0);
+        *len = 1;
+        return ins;
+    }
+    case CJMP:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t) * 2);
+        ins[0] = INS(PUSH32, 0);
+        ins[1] = INS(JMP, 0);
+        *len = 1;
+        return ins;
+    }
     default:
     {
         instruction_t *ins = malloc(sizeof(instruction_t));
@@ -460,4 +670,78 @@ instruction_t *compile(command_t command, int *len)
         return ins;
     }
     }
+}
+
+typedef struct
+{
+    char *name;
+    int pos;
+} label_t;
+
+int resolve_label(int label_count, label_t *labels, char *name)
+{
+    for (int i = 0; i < label_count; ++i)
+    {
+        if (strcmp(labels[i].name, name) == 0)
+        {
+            return labels[i].pos;
+        }
+    }
+    return -1;
+}
+
+instruction_t *compile_all(command_t *commands, int *out_len)
+{
+    int pos = 0;
+    instruction_t *instructions = malloc(sizeof(instruction_t));
+    int i = 0;
+    int sz = 1;
+    int label_sz = sizeof(label_t);
+    int label_idx = 0;
+    label_t *labels = malloc(sizeof(label_t));
+    while (true)
+    {
+        int len = 0;
+        instruction_t *ins = compile(commands[i], &len);
+        if (len == 1 && ins[0].type == INS_LABEL)
+        {
+            label_sz += sizeof(label_t);
+            labels[label_idx] = (label_t){commands[i].token.src, pos + 1};
+            labels = realloc(labels, label_sz);
+            ++label_idx;
+        }
+        if (len == 2 && (ins[1].type == JNE || ins[1].type == JL || ins[1].type == JE || ins[1].type == JMP))
+        {
+            ins[0].value = i;
+        }
+        if (len == 1 && ins[0].type == NOP)
+        {
+            *out_len = sz - 1;
+            break;
+        }
+        instructions = realloc(instructions, (len + sz) * sizeof(instruction_t));
+        for (int z = 0; z < len; ++z)
+        {
+            instructions[pos + z] = ins[z];
+        }
+        pos += len;
+        sz += len;
+        ++i;
+    }
+    // resolve labels
+    for (int i = 0; i < *out_len; ++i)
+    {
+        if (instructions[i].type == JNE || instructions[i].type == JL || instructions[i].type == JMP)
+        {
+            int idx = instructions[i - 1].value;
+            char *str = commands[idx].token.src;
+            int pos = resolve_label(label_idx, labels, str);
+            if (pos == -1)
+            {
+                PARSE_ERROR(commands[idx].token, "Label doesnt exist.");
+            }
+            instructions[i - 1].value = pos;
+        }
+    }
+    return instructions;
 }

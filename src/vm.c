@@ -331,7 +331,6 @@ void print8(vm_state *vm)
 
 void print32(vm_state *vm)
 {
-
     check_vm(vm);
     check_stack(vm, 4);
     printf("%d", get32(vm));
@@ -559,6 +558,20 @@ void execute(vm_state *vm, instruction_t instruction)
 {
     switch (instruction.type)
     {
+    case DROP:
+    {
+        check_vm(vm);
+        check_stack(vm, 1);
+        vm->sp--;
+    }
+    break;
+    case DROP32:
+    {
+        check_vm(vm);
+        check_stack(vm, 4);
+        vm->sp -= 4;
+    }
+    break;
     case PUSH:
     {
         push(vm, (uint8_t)instruction.value);
@@ -775,6 +788,10 @@ void execute(vm_state *vm, instruction_t instruction)
     case PRINT_I32:
     {
         print32(vm);
+    }
+    break;
+    default:
+    {
     }
     break;
     }

@@ -1,4 +1,4 @@
-#include <memdebug.h>
+#include "memdebug/memdebug.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -95,26 +95,20 @@ instruction_t ins[] = {};
 
 int main(void)
 {
-    // vm_state *vm = create_vm(50000, 50000);
-    // printf("OUTPUT: \n");
-    // exec_all(vm, fizzbuzz, (sizeof(fizzbuzz) / sizeof(instruction_t)));
-    // printf("\n~~~~~~~~~~~~~~~~~~~~~~~~~\n");
-    // vm_view(vm);
-    // cleanup_vm(vm);
     init_memdebug();
 
     char *file = readfile("./main.sas");
     parser_state *parser = create_parser(file);
     command_t *commands = parse_all(parser);
     free(parser->tokens);
+    free(parser);
     int len = 0;
-    instruction_t *compiled = compile(commands[0], &len);
-    vm_state *vm = create_vm(100, 100);
+    instruction_t *compiled = compile_all(commands, &len);
+    vm_state *vm = create_vm(1000, 1000);
     exec_all(vm, compiled, len);
     vm_view(vm);
     free(file);
-
-    memdebug_view();
+    // memdebug_view();
     cleanup_memdebug();
     return 0;
 }

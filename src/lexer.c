@@ -168,6 +168,24 @@ token_t lex_str(lexer_state *lexer)
     int i = 0;
     while (get_cur(lexer) && get_cur(lexer) != '"')
     {
+        if (get_cur(lexer) == '\\')
+        {
+            next(lexer);
+            if (get_cur(lexer) == 'n')
+            {
+                buffer[i] = '\n';
+                next(lexer);
+                continue;
+            }
+            if (get_cur(lexer) == 't')
+            {
+                buffer[i] = '\t';
+                next(lexer);
+                continue;
+            }
+            --lexer->pos;
+            --lexer->column;
+        }
         buffer[i] = get_cur(lexer);
         ++i;
         next(lexer);

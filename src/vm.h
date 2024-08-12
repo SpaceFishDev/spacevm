@@ -3,13 +3,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <memdebug.h>
+#include "memdebug/memdebug.h"
 #include "term_colors.h"
 
 typedef enum
 {
     PUSH,
     PUSH32,
+    DROP,
+    DROP32,
     POPA8,
     POPA32,
     PUSHA32,

@@ -52,6 +52,10 @@ typedef enum
     CPOPA8,
     CPUSHA32,
     CJL,
+    CDROP8,
+    CDROP32,
+    CJG,
+    CJMP,
     CPUSHA8,
     CPOPB32,
     CPOPB8,
@@ -61,6 +65,8 @@ typedef enum
     CCMP8,
     CDUP8,
     CDUP32,
+    CLOAD8,
+    CLOAD32,
     CMK4,
     CJNE,
     CPUTC,
@@ -87,3 +93,4 @@ command_t parse(parser_state *parser);
 void display_command(command_t cmd);
 command_t *parse_all(parser_state *parser);
 instruction_t *compile(command_t command, int *len);
+instruction_t *compile_all(command_t *commands, int *len);
