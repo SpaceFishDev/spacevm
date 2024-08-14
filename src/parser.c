@@ -335,6 +335,42 @@ command_t parse(parser_state *parser)
             free(value);
             return CMD(CPUSHA32, t);
         }
+        if (strcmp(value, "store32") == 0)
+        {
+            ++parser->pos;
+            free(value);
+            return CMD(CSTORE32, t);
+        }
+        if (strcmp(value, "store8") == 0)
+        {
+            ++parser->pos;
+            free(value);
+            return CMD(CSTORE8, t);
+        }
+        if (strcmp(value, "readc") == 0)
+        {
+            ++parser->pos;
+            free(value);
+            return CMD(CREAD, t);
+        }
+        if (strcmp(value, "mk1") == 0)
+        {
+            ++parser->pos;
+            free(value);
+            return CMD(CMK1, t);
+        }
+        if (strcmp(value, "sub32") == 0)
+        {
+            ++parser->pos;
+            free(value);
+            return CMD(CSUB32, t);
+        }
+        if (strcmp(value, "sub8") == 0)
+        {
+            ++parser->pos;
+            free(value);
+            return CMD(CSUB8, t);
+        }
 
         free(value);
     }
@@ -461,6 +497,20 @@ instruction_t *compile(command_t command, int *len)
     {
         instruction_t *ins = malloc(sizeof(instruction_t));
         *ins = INS(POPB32, 0);
+        *len = 1;
+        return ins;
+    }
+    case CSUB32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(SUB32, 0);
+        *len = 1;
+        return ins;
+    }
+    case CSUB8:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        *ins = INS(SUB8, 0);
         *len = 1;
         return ins;
     }
@@ -651,6 +701,27 @@ instruction_t *compile(command_t command, int *len)
     {
         instruction_t *ins = malloc(sizeof(instruction_t));
         ins[0] = INS(LOAD, 0);
+        *len = 1;
+        return ins;
+    }
+    case CREAD:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(READ, 0);
+        *len = 1;
+        return ins;
+    }
+    case CMK1:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(MK1, 0);
+        *len = 1;
+        return ins;
+    }
+    case CSTORE32:
+    {
+        instruction_t *ins = malloc(sizeof(instruction_t));
+        ins[0] = INS(STORE32, 0);
         *len = 1;
         return ins;
     }

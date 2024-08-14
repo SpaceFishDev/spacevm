@@ -104,7 +104,7 @@ int main(void)
     free(parser);
     int len = 0;
     instruction_t *compiled = compile_all(commands, &len);
-    vm_state *vm = create_vm(1000, 1000);
+    vm_state *vm = create_vm(10000, 10000);
     exec_all(vm, compiled, len);
     vm_view(vm);
     free(file);

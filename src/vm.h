@@ -13,6 +13,7 @@ typedef enum
     DROP,
     DROP32,
     POPA8,
+    READ,
     POPA32,
     PUSHA32,
     PUSHA8,

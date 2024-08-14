@@ -15,8 +15,8 @@ int sz_allocations = 0;
 int alloc_idx = 0;
 void grow_allocations()
 {
-    allocations = realloc(allocations, sz_allocations * 2 * sizeof(allocation_t));
-    sz_allocations *= 2;
+    sz_allocations += 50;
+    allocations = realloc(allocations, sz_allocations * sizeof(allocation_t));
 }
 
 void init_memdebug()

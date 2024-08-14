@@ -72,11 +72,17 @@ typedef enum
     CPUTC,
     CPUSHB8,
     CPUSHB32,
+    CREAD,
+    CMK1,
     CPRINTI32,
     CADD32,
+    CSTORE32,
+    CSTORE8,
     CADD8,
     CSWAP8,
     CSWAP32,
+    CSUB32,
+    CSUB8,
     CNONE,
 
 } command_type;

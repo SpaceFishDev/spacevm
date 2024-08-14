@@ -572,6 +572,13 @@ void execute(vm_state *vm, instruction_t instruction)
         vm->sp -= 4;
     }
     break;
+    case READ:
+    {
+        uint8_t value;
+        (void)!scanf("%c", &value);
+        push(vm, value);
+    }
+    break;
     case PUSH:
     {
         push(vm, (uint8_t)instruction.value);
@@ -732,7 +739,7 @@ void execute(vm_state *vm, instruction_t instruction)
     case MK1:
     {
         check_stack(vm, 4);
-        vm->sp -= 4;
+        vm->sp -= 3;
     }
     break;
     case STORE:
